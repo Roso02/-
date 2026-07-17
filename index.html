@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>직업 전직 가이드</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; text-align: center; max-width: 500px; margin: auto; }
+        .tabs { display: flex; justify-content: center; margin-bottom: 20px; gap: 5px; }
+        .tab-btn { padding: 10px; cursor: pointer; border: 1px solid #ccc; background: #fff; flex: 1; }
+        .tab-btn.active { background: #e0e0e0; font-weight: bold; }
+        select { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 5px; border: 1px solid #aaa; }
+        #result { margin-top: 20px; padding: 20px; border: 2px solid #333; border-radius: 10px; text-align: left; background: #f9f9f9; min-height: 100px; }
+    </style>
+</head>
+<body>
+    <h2>직업 전직 가이드</h2>
+    <div class="tabs" id="jobTabs">
+        <button class="tab-btn" onclick="selectJob('소서러', this)">소서러</button>
+        <button class="tab-btn" onclick="selectJob('버서커', this)">버서커</button>
+        <button class="tab-btn" onclick="selectJob('레인져', this)">레인져</button>
+        <button class="tab-btn" onclick="selectJob('팔라딘', this)">팔라딘</button>
+        <button class="tab-btn" onclick="selectJob('다크나이트', this)">다크나이트</button>
+    </div>
+    <select id="usageSelect" onchange="showRoute()">
+        <option value="">용도를 선택하세요</option>
+        <option value="파밍">파밍</option>
+        <option value="보스">보스</option>
+        <option value="콜로">콜로</option>
+    </select>
+    <select id="routeSelect" onchange="showDescription()">
+        <option value="">추천 루트 선택</option>
+    </select>
+    <div id="result">직업과 용도를 선택해 주세요.</div>
+
+    <script>
+        const data = {
+            "소서러": {
+                "파밍": { "이그컨저마로": "어부30까지 등반에서 주요딜러로 쓰입니다.", "아크닼로오포": "메인 탱커 전직루트입니다." },
+                "보스": { "다크닼로마로": "폴리모프 스킬로 아군을 더 오래 버티게 하기 위함입니다." }
+            }
+            // 여기에 나머지 데이터를 똑같은 형식으로 추가하세요!
+        };
+        let currentJob = "";
+        function selectJob(job, btn) {
+            currentJob = job;
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('result').innerText = job + " 선택됨. 용도를 선택해주세요.";
+        }
+        function showRoute() {
+            const usage = document.getElementById('usageSelect').value;
+            const routeSelect = document.getElementById('routeSelect');
+            routeSelect.innerHTML = '<option value="">추천 루트 선택</option>';
+            if (data[currentJob] && data[currentJob][usage]) {
+                Object.keys(data[currentJob][usage]).forEach(route => {
+                    let opt = document.createElement('option');
+                    opt.value = route; opt.innerHTML = route;
+                    routeSelect.appendChild(opt);
+                });
+            }
+        }
+        function showDescription() {
+            const usage = document.getElementById('usageSelect').value;
+            const route = document.getElementById('routeSelect').value;
+            if (data[currentJob] && data[currentJob][usage] && data[currentJob][usage][route]) {
+                document.getElementById('result').innerText = data[currentJob][usage][route];
+            }
+        }
+    </script>
+</body>
+</html>
