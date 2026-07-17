@@ -94,7 +94,11 @@
             currentJob = job;
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
             btn.classList.add('active');
-            document.getElementById('result').innerText = job + " 선택됨. 용도를 선택해주세요.";
+            
+            // 직업을 바꿀 때마다 용도와 루트 선택 초기화
+            document.getElementById('usageSelect').value = ""; 
+            document.getElementById('routeSelect').innerHTML = '<option value="">추천 루트 선택</option>';
+            document.getElementById('result').innerText = job + "을 선택하셨습니다. 용도를 선택해주세요.";
         }
         function showRoute() {
             const usage = document.getElementById('usageSelect').value;
