@@ -3,27 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <title>로소의 전직가이드(Ver.1)</title>
+    <!-- 웹 폰트 적용 (가독성 높은 Noto Sans KR) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: sans-serif; padding: 20px; text-align: center; max-width: 500px; margin: auto; }
-        .tabs { display: flex; justify-content: center; margin-bottom: 20px; gap: 5px; }
-        .tab-btn { padding: 10px; cursor: pointer; border: 1px solid #ccc; background: #fff; flex: 1; }
-        .tab-btn.active { background: #e0e0e0; font-weight: bold; }
-        select { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 5px; border: 1px solid #aaa; }
-        #result { 
-            margin-top: 20px; 
+        body { 
+            font-family: 'Noto Sans KR', sans-serif; 
             padding: 20px; 
-            border: 2px solid #333; 
-            border-radius: 10px; 
-            text-align: left; 
-            background: #f9f9f9; 
-            min-height: 100px;
-            white-space: pre-wrap; /* 줄바꿈 적용 */
-            line-height: 1.6; /* 가독성을 위한 줄간격 */
+            text-align: center; 
+            max-width: 600px; /* 모바일 및 PC에서 보기 좋게 폭 조정 */
+            margin: auto; 
+            background-color: #f4f7f6; 
+            color: #333;
+        }
+        h2 { margin-bottom: 30px; color: #2c3e50; }
+        
+        /* 탭 버튼 스타일 개선 */
+        .tabs { 
+            display: flex; 
+            justify-content: center; 
+            flex-wrap: wrap; 
+            gap: 8px; 
+            margin-bottom: 25px; 
+        }
+        .tab-btn { 
+            padding: 12px 15px; 
+            cursor: pointer; 
+            border: 1px solid #dce1e5; 
+            border-radius: 8px;
+            background: #fff; 
+            flex: 1; 
+            min-width: 90px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            color: #555;
+        }
+        .tab-btn:hover { background: #f0f4f8; }
+        .tab-btn.active { 
+            background: #2c3e50; 
+            color: #fff; 
+            border-color: #2c3e50;
+            font-weight: bold; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* 셀렉트 박스 스타일 개선 */
+        select { 
+            width: 100%; 
+            padding: 15px; 
+            margin-bottom: 20px; 
+            border-radius: 8px; 
+            border: 1px solid #ccc; 
+            font-size: 16px;
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #fff;
+            outline: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        select:focus { border-color: #2c3e50; }
+
+        /* 결과 리스트 컨테이너 */
+        #routeList {
+            display: flex;
+            flex-direction: column;
+            gap: 15px; /* 카드 사이 간격 */
+        }
+
+        /* 가독성을 높인 카드형 레이아웃 */
+        .route-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: left;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-left: 5px solid #3498db; /* 시각적 포인트를 주는 왼쪽 띠 */
+        }
+        
+        /* 카드 내 루트 이름 */
+        .route-name {
+            font-size: 1.15em;
+            font-weight: 700;
+            color: #2980b9;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+        
+        /* 카드 내 설명글 */
+        .route-desc {
+            font-size: 0.95em;
+            color: #444;
+            white-space: pre-wrap; /* 줄바꿈 유지 */
+            line-height: 1.6; /* 텍스트 줄 간격 확보 */
+            word-break: keep-all; /* 단어 단위로 줄바꿈하여 읽기 편하게 설정 */
+        }
+
+        /* 초기 안내 문구 */
+        .empty-msg {
+            padding: 30px;
+            color: #7f8c8d;
+            background: #fff;
+            border-radius: 10px;
+            border: 1px dashed #bdc3c7;
         }
     </style>
 </head>
 <body>
     <h2>로소의 전직가이드(Ver.1)</h2>
+    
     <div class="tabs" id="jobTabs">
         <button class="tab-btn" onclick="selectJob('소서러', this)">소서러</button>
         <button class="tab-btn" onclick="selectJob('버서커', this)">버서커</button>
@@ -31,16 +117,18 @@
         <button class="tab-btn" onclick="selectJob('팔라딘', this)">팔라딘</button>
         <button class="tab-btn" onclick="selectJob('다크나이트', this)">다크나이트</button>
     </div>
-    <select id="usageSelect" onchange="showRoute()">
-        <option value="">용도를 선택하세요</option>
+    
+    <select id="usageSelect" onchange="showRoutes()">
+        <option value="">용도를 선택하세요 (파밍/보스/콜로)</option>
         <option value="파밍">파밍</option>
         <option value="보스">보스</option>
         <option value="콜로">콜로</option>
     </select>
-    <select id="routeSelect" onchange="showDescription()">
-        <option value="">추천 루트 선택</option>
-    </select>
-    <div id="result">직업과 용도를 선택해 주세요.</div>
+    
+    <!-- 결과를 카드 형태로 뿌려줄 영역 -->
+    <div id="routeList">
+        <div class="empty-msg">직업과 용도를 선택해 주세요.</div>
+    </div>
 
     <script>
         const data = {
@@ -117,34 +205,49 @@
         
         function selectJob(job, btn) {
             currentJob = job;
+            // 활성화된 탭 디자인 변경
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
             btn.classList.add('active');
             
-            // 직업을 바꿀 때마다 용도와 루트 선택 초기화
+            // 직업 변경 시 화면 초기화
             document.getElementById('usageSelect').value = ""; 
-            document.getElementById('routeSelect').innerHTML = '<option value="">추천 루트 선택</option>';
-            document.getElementById('result').innerText = job + "을(를) 선택하셨습니다. 용도를 선택해주세요.";
+            const routeList = document.getElementById('routeList');
+            routeList.innerHTML = `<div class="empty-msg"><b>[${job}]</b>을(를) 선택하셨습니다.<br>아래에서 용도를 선택해주세요.</div>`;
         }
         
-        function showRoute() {
+        // 용도 선택 시 모든 관련 루트를 카드로 그려주는 함수
+        function showRoutes() {
             const usage = document.getElementById('usageSelect').value;
-            const routeSelect = document.getElementById('routeSelect');
-            routeSelect.innerHTML = '<option value="">추천 루트 선택</option>';
-            if (data[currentJob] && data[currentJob][usage]) {
-                Object.keys(data[currentJob][usage]).forEach(route => {
-                    let opt = document.createElement('option');
-                    opt.value = route; 
-                    opt.innerHTML = route;
-                    routeSelect.appendChild(opt);
-                });
+            const routeList = document.getElementById('routeList');
+            
+            // 초기화
+            routeList.innerHTML = '';
+
+            if (!currentJob) {
+                routeList.innerHTML = '<div class="empty-msg">직업을 먼저 선택해 주세요.</div>';
+                return;
             }
-        }
-        
-        function showDescription() {
-            const usage = document.getElementById('usageSelect').value;
-            const route = document.getElementById('routeSelect').value;
-            if (data[currentJob] && data[currentJob][usage] && data[currentJob][usage][route]) {
-                document.getElementById('result').innerText = data[currentJob][usage][route];
+
+            if (usage && data[currentJob] && data[currentJob][usage]) {
+                const routes = data[currentJob][usage];
+                
+                Object.keys(routes).forEach(routeName => {
+                    const desc = routes[routeName];
+                    
+                    // 카드 요소 생성
+                    const card = document.createElement('div');
+                    card.className = 'route-card';
+                    
+                    // 카드 내부 HTML 조립
+                    card.innerHTML = `
+                        <div class="route-name">${routeName}</div>
+                        <div class="route-desc">${desc}</div>
+                    `;
+                    
+                    routeList.appendChild(card);
+                });
+            } else {
+                routeList.innerHTML = '<div class="empty-msg">용도를 선택해 주세요.</div>';
             }
         }
     </script>
